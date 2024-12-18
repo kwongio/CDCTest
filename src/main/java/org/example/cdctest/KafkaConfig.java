@@ -21,6 +21,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.CommonContainerStoppingErrorHandler;
 import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.util.backoff.BackOff;
@@ -56,46 +57,51 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         configProps.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 500);
-
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
+//    @Bean
+//    @Primary
+//    CommonErrorHandler errorHandler() {
+//        CommonContainerStoppingErrorHandler cseh = new CommonContainerStoppingErrorHandler();
+//        AtomicReference<Consumer<?, ?>> consumer2 = new AtomicReference<>();
+//        AtomicReference<MessageListenerContainer> container2 = new AtomicReference<>();
+//
+//        return new DefaultErrorHandler((rec, ex) -> {
+//            cseh.handleRemaining(ex, Collections.singletonList(rec), consumer2.get(), container2.get());
+//        }, generateBackOff()) {
+//
+//            @Override
+//            public void handleRemaining(
+//                    Exception thrownException,
+//                    List<ConsumerRecord<?, ?>> records,
+//                    Consumer<?, ?> consumer,
+//                    MessageListenerContainer container
+//            ) {
+//                consumer2.set(consumer);
+//                container2.set(container);
+//                super.handleRemaining(thrownException, records, consumer, container);
+//            }
+//        };
+//    }
+
+    //KafkaListner 어노테이션은 기본적으로 kafkaListenerContainerFactory 이름을 참고함
+
     @Bean
-    @Primary
-    CommonErrorHandler errorHandler() {
-        CommonContainerStoppingErrorHandler cseh = new CommonContainerStoppingErrorHandler();
-        AtomicReference<Consumer<?, ?>> consumer2 = new AtomicReference<>();
-        AtomicReference<MessageListenerContainer> container2 = new AtomicReference<>();
-
-        return new DefaultErrorHandler((rec, ex) -> {
-            cseh.handleRemaining(ex, Collections.singletonList(rec), consumer2.get(), container2.get());
-        }, generateBackOff()) {
-
-            @Override
-            public void handleRemaining(
-                    Exception thrownException,
-                    List<ConsumerRecord<?, ?>> records,
-                    Consumer<?, ?> consumer,
-                    MessageListenerContainer container
-            ) {
-                consumer2.set(consumer);
-                container2.set(container);
-                super.handleRemaining(thrownException, records, consumer, container);
-            }
-        };
-    }
-
-    @Bean
-    @Primary
-    public ConcurrentKafkaListenerContainerFactory<String, String> batchFactory(CommonErrorHandler errorHandler) {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, String> batchFactory() {
 //        DefaultErrorHandler errorHandler = new DefaultErrorHandler(new FixedBackOff(1000L, 2L));
 //        ExponentialBackOff exponentialBackOff = new ExponentialBackOff(1000L, 2L);
 //        exponentialBackOff.setInitialInterval(10000);
 //        new CommonContainerStoppingErrorHandler(); // 컨테이너 멈추기 가능
 //        errorHandler.addNotRetryableExceptions(IllegalArgumentException.class);
-        factory.setCommonErrorHandler(errorHandler);
 
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        // DLQ에 넣기 때문에 producer도 있어야함
+        ExponentialBackOff backOff = new ExponentialBackOff(1000, 2);
+        DefaultErrorHandler commonErrorHandler = new DefaultErrorHandler(
+                new DeadLetterPublishingRecoverer(kafkaTemplate()),
+                backOff);
+        factory.setCommonErrorHandler(commonErrorHandler);
         factory.setConsumerFactory(consumerFactory());
         factory.setConcurrency(3);
         factory.setBatchListener(true);
@@ -103,10 +109,10 @@ public class KafkaConfig {
     }
 
 
-    private BackOff generateBackOff() {
-        ExponentialBackOff backOff = new ExponentialBackOff(1000, 2);
-//        backOff.setMaxAttempts(1);
-        backOff.setMaxElapsedTime(10000);
-        return backOff;
-    }
+//    private BackOff generateBackOff() {
+//        ExponentialBackOff backOff = new ExponentialBackOff(1000, 2);
+////        backOff.setMaxAttempts(1);
+//        backOff.setMaxElapsedTime(10000);
+//        return backOff;
+//    }
 }
