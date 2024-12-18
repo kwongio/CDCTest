@@ -1,12 +1,17 @@
-package com.fastcampus.kafkahandson.api;
-
-import com.fastcampus.kafkahandson.model.MyModel;
-import com.fastcampus.kafkahandson.service.MyService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+package org.example.cdctest.api;
 
 import java.util.List;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.example.cdctest.model.MyModel;
+import org.example.cdctest.service.MyService;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
@@ -19,23 +24,13 @@ public class MyController {
      */
 
     @PostMapping("/greetings")
-    MyModel create(
-        @RequestBody Request request
-    ) {
-        if (
-            request == null ||
-            request.userId == null ||
-            request.userName == null ||
-            request.userAge == null ||
-            request.content == null
-        ) return null;
+    MyModel create(@RequestBody Request request) {
+        if (request == null || request.userId == null || request.userName == null || request.userAge == null
+                || request.content == null) {
+            return null;
+        }
 
-        MyModel myModel = MyModel.create(
-            request.userId,
-            request.userAge,
-            request.userName,
-            request.content
-        );
+        MyModel myModel = MyModel.create(request.userId, request.userAge, request.userName, request.content);
         return myService.save(myModel);
     }
 
@@ -45,27 +40,22 @@ public class MyController {
     }
 
     @GetMapping("/greetings/{id}")
-    MyModel get(
-        @PathVariable Integer id
-    ) {
+    MyModel get(@PathVariable Integer id) {
         return myService.findById(id);
     }
 
     @PatchMapping("/greetings/{id}")
-    MyModel update(
-        @PathVariable Integer id,
-        @RequestBody String content
-    ) {
-        if (id == null || content == null || content.isBlank()) return null;
+    MyModel update(@PathVariable Integer id, @RequestBody String content) {
+        if (id == null || content == null || content.isBlank()) {
+            return null;
+        }
         MyModel myModel = myService.findById(id);
         myModel.setContent(content);
         return myService.save(myModel);
     }
 
     @DeleteMapping("/greetings/{id}")
-    void delete(
-        @PathVariable Integer id
-    ) {
+    void delete(@PathVariable Integer id) {
         myService.delete(id);
     }
 

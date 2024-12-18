@@ -1,10 +1,9 @@
-package com.fastcampus.kafkahandson.producer;
+package org.example.cdctest.conumser;
 
-import com.fastcampus.kafkahandson.common.CustomObjectMapper;
-import com.fastcampus.kafkahandson.model.MyCdcMessage;
-import com.fastcampus.kafkahandson.model.Topic;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import org.example.cdctest.model.MyCdcMessage;
+import org.example.cdctest.model.Topic;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 

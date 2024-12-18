@@ -1,9 +1,8 @@
-package com.fastcampus.kafkahandson.model;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
+package org.example.cdctest.model;
 
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor

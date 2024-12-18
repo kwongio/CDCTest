@@ -1,10 +1,9 @@
-package com.fastcampus.kafkahandson.model;
+package org.example.cdctest.model;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -25,4 +24,10 @@ public class MyCdcMessage {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
+
+    /**
+     *  C: before null -> after 0000
+     *  U: before 0000 -> after 0000
+     *  D: before 0000 -> after null
+     */
 }

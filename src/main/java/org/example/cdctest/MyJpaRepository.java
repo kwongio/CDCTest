@@ -1,4 +1,4 @@
-package com.fastcampus.kafkahandson.data;
+package org.example.cdctest;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

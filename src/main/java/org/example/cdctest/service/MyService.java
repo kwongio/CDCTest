@@ -1,8 +1,8 @@
-package com.fastcampus.kafkahandson.service;
+package org.example.cdctest.service;
 
-import com.fastcampus.kafkahandson.model.MyModel;
 
 import java.util.List;
+import org.example.cdctest.model.MyModel;
 
 public interface MyService {
 

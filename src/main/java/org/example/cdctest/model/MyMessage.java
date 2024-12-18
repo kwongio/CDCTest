@@ -1,4 +1,4 @@
-package com.fastcampus.kafkahandson.model;
+package org.example.cdctest.model;
 
 import lombok.Data;
 

@@ -1,6 +1,7 @@
-package com.fastcampus.kafkahandson.model;
+package org.example.cdctest.model;
 
-import com.fastcampus.kafkahandson.data.MyEntity;
+
+import org.example.cdctest.MyEntity;
 
 public class MyModelConverter {
 
